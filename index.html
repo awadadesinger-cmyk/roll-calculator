@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حساب الرولات</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; direction: rtl; }
+    h1 { font-size: 24px; margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .result p { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>حساب عدد الرولات والأمتار المطلوبة</h1>
+  <div class="card">
+    <label>طول التصميم (سم):
+      <input type="number" id="height" />
+    </label>
+    <label>عرض التصميم (سم):
+      <input type="number" id="width" />
+    </label>
+    <label>عدد النسخ المطلوبة:
+      <input type="number" id="quantity" />
+    </label>
+    <button onclick="calculate()" style="margin-top: 15px;">احسب</button>
+  </div>
+
+  <div class="card result" id="results" style="display:none;">
+    <p><strong>عدد التصاميم عرضيًا:</strong> <span id="rowCount"></span></p>
+    <p><strong>عدد التصاميم طوليًا:</strong> <span id="colCount"></span></p>
+    <p><strong>عدد التصاميم في الرول الواحد:</strong> <span id="totalPerRoll"></span></p>
+    <p><strong>عدد الرولات المطلوبة:</strong> <span id="rolls"></span></p>
+    <p><strong>عدد الأمتار المطلوبة:</strong> <span id="meters"></span> متر</p>
+  </div>
+
+  <script>
+    function calculate() {
+      const height = parseFloat(document.getElementById('height').value);
+      const width = parseFloat(document.getElementById('width').value);
+      const quantity = parseFloat(document.getElementById('quantity').value);
+      const rollLength = 25; // meters
+      const rollWidth = 50; // cm
+
+      if (!height || !width || !quantity) return;
+
+      const designsPerRow = Math.floor(rollWidth / width);
+      const designsPerColumn = Math.floor((rollLength * 100) / height);
+      const designsPerRoll = designsPerRow * designsPerColumn;
+      const requiredRolls = designsPerRoll > 0 ? Math.ceil(quantity / designsPerRoll) : 0;
+      const requiredMeters = designsPerRow > 0 ? (quantity / designsPerRow) * (height / 100) : 0;
+
+      document.getElementById('rowCount').textContent = designsPerRow;
+      document.getElementById('colCount').textContent = designsPerColumn;
+      document.getElementById('totalPerRoll').textContent = designsPerRoll;
+      document.getElementById('rolls').textContent = requiredRolls;
+      document.getElementById('meters').textContent = requiredMeters.toFixed(2);
+      document.getElementById('results').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
