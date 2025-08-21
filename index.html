@@ -1,11 +1,12 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>حساب الرولات والتكلفة</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>حساب الرولات والتكلفة</title>
+<style>
     body { font-family: sans-serif; background: #f9f9f9; padding: 20px; max-width: 640px; margin: auto; direction: rtl; }
     h1 { font-size: 24px; margin-bottom: 20px; }
     label { display: block; margin-top: 10px; font-weight: 600; }
@@ -18,64 +19,61 @@
     .warn { display:none; background:#fff3cd; color:#8a6d3b; border:1px solid #ffeeba; padding:12px; border-radius:8px; margin-bottom:12px; }
     button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #111; color: #fff; font-weight: 700; }
   </style>
-</head>
+<link href="icon.png" rel="icon" type="image/png"/><link href="icon.png" rel="apple-touch-icon"/></head>
 <body>
-  <h1>حساب الرولات والأمتار المطلوبة + التكلفة</h1>
-  <div class="card">
-    <div class="row">
-      <div>
-        <label>طول التصميم (سم)</label>
-        <input type="number" id="height" step="0.01" placeholder="مثال: 27.5" />
-      </div>
-      <div>
-        <label>عرض التصميم (سم)</label>
-        <input type="number" id="width" step="0.01" placeholder="مثال: 50" />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>عدد النسخ المطلوبة</label>
-        <input type="number" id="quantity" step="1" placeholder="مثال: 1000" />
-      </div>
-      <div>
-        <label>طول الرول (متر)</label>
-        <input type="number" id="rollLength" step="0.01" value="25" />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>عرض الرول (سم)</label>
-        <input type="number" id="rollWidth" step="0.01" value="50" />
-      </div>
-      <div>
-        <label>سعر المتر (عملة)</label>
-        <input type="number" id="pricePerMeter" step="0.0001" value="2.20" />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>رمز/اسم العملة (اختياري)</label>
-        <input type="text" id="currency" placeholder="USD / AED / $" />
-      </div>
-    </div>
-    <button id="calcBtn">احسب</button>
-    <span class="muted">القيم تُحفظ تلقائيًا</span>
-  </div>
-
-  <div id="warn" class="warn">⚠️ عرض التصميم أكبر من عرض الرول — عدّل القيم رجاءً.</div>
-
-  <div class="card result" id="results" style="display:none;">
-    <p><strong>عدد التصاميم عرضيًا:</strong> <span id="rowCount"></span></p>
-    <p><strong>عدد التصاميم طوليًا:</strong> <span id="colCount"></span></p>
-    <p><strong>عدد التصاميم في الرول الواحد:</strong> <span id="totalPerRoll"></span></p>
-    <p><strong>عدد الرولات المطلوبة:</strong> <span id="rolls"></span></p>
-    <p><strong>عدد الأمتار المطلوبة:</strong> <span id="meters"></span> متر</p>
-    <hr />
-    <p><strong>التكلفة الإجمالية:</strong> <span id="totalCost"></span></p>
-    <p><strong>تكلفة الحبة الواحدة:</strong> <span id="unitCost"></span></p>
-  </div>
-
-  <script>
+<h1>حساب الرولات والأمتار المطلوبة + التكلفة</h1>
+<div class="card">
+<div class="row">
+<div>
+<label>طول التصميم (سم)</label>
+<input id="height" placeholder="مثال: 27.5" step="0.01" type="number"/>
+</div>
+<div>
+<label>عرض التصميم (سم)</label>
+<input id="width" placeholder="مثال: 50" step="0.01" type="number"/>
+</div>
+</div>
+<div class="row">
+<div>
+<label>عدد النسخ المطلوبة</label>
+<input id="quantity" placeholder="مثال: 1000" step="1" type="number"/>
+</div>
+<div>
+<label>طول الرول (متر)</label>
+<input id="rollLength" step="0.01" type="number" value="25"/>
+</div>
+</div>
+<div class="row">
+<div>
+<label>عرض الرول (سم)</label>
+<input id="rollWidth" step="0.01" type="number" value="50"/>
+</div>
+<div>
+<label>سعر المتر (عملة)</label>
+<input id="pricePerMeter" step="0.0001" type="number" value="2.20"/>
+</div>
+</div>
+<div class="row">
+<div>
+<label>رمز/اسم العملة (اختياري)</label>
+<input id="currency" placeholder="USD / AED / $" type="text"/>
+</div>
+</div>
+<button id="calcBtn">احسب</button>
+<span class="muted">القيم تُحفظ تلقائيًا</span>
+</div>
+<div class="warn" id="warn">⚠️ عرض التصميم أكبر من عرض الرول — عدّل القيم رجاءً.</div>
+<div class="card result" id="results" style="display:none;">
+<p><strong>عدد التصاميم عرضيًا:</strong> <span id="rowCount"></span></p>
+<p><strong>عدد التصاميم طوليًا:</strong> <span id="colCount"></span></p>
+<p><strong>عدد التصاميم في الرول الواحد:</strong> <span id="totalPerRoll"></span></p>
+<p><strong>عدد الرولات المطلوبة:</strong> <span id="rolls"></span></p>
+<p><strong>عدد الأمتار المطلوبة:</strong> <span id="meters"></span> متر</p>
+<hr/>
+<p><strong>التكلفة الإجمالية:</strong> <span id="totalCost"></span></p>
+<p><strong>تكلفة الحبة الواحدة:</strong> <span id="unitCost"></span></p>
+</div>
+<script>
     // حفظ تلقائي
     const ids = ["height","width","quantity","rollLength","rollWidth","pricePerMeter","currency"];
     ids.forEach(id => {
