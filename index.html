@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الرولات</title>
+
+    <!-- ايقونات التطبيق والايفون والاندرويد -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin: 30px;
+        }
+        input {
+            margin: 5px;
+            padding: 8px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>📏 حاسبة الرولات</h2>
+
+    <label>طول التصميم (سم):</label><br>
+    <input type="number" id="designLength" placeholder="ادخل الطول"><br>
+
+    <label>عرض التصميم (سم):</label><br>
+    <input type="number" id="designWidth" placeholder="ادخل العرض"><br>
+
+    <label>طول الرول (م):</label><br>
+    <input type="number" id="rollLength" value="25"><br>
+
+    <label>عرض الرول (سم):</label><br>
+    <input type="number" id="rollWidth" value="50"><br>
+
+    <label>سعر المتر (درهم):</label><br>
+    <input type="number" id="pricePerMeter" value="0"><br>
+
+    <button onclick="calculate()">احسب</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function calculate() {
+            let designLength = parseFloat(document.getElementById('designLength').value) / 100;
+            let designWidth = parseFloat(document.getElementById('designWidth').value) / 100;
+            let rollLength = parseFloat(document.getElementById('rollLength').value);
+            let rollWidth = parseFloat(document.getElementById('rollWidth').value) / 100;
+            let pricePerMeter = parseFloat(document.getElementById('pricePerMeter').value);
+
+            if (isNaN(designLength) || isNaN(designWidth)) {
+                document.getElementById('result').innerHTML = "⚠️ الرجاء إدخال القيم بشكل صحيح";
+                return;
+            }
+
+            let designArea = designLength * designWidth;
+            let rollArea = rollLength * rollWidth;
+            let rollsNeeded = Math.ceil(designArea / rollArea);
+            let metersNeeded = rollsNeeded * rollLength;
+            let totalPrice = metersNeeded * pricePerMeter;
+
+            document.getElementById('result').innerHTML =
+                `✅ تحتاج إلى <b>${rollsNeeded}</b> رول<br>` +
+                `📏 مجموع الأمتار: <b>${metersNeeded}</b> متر<br>` +
+                `💰 السعر الكلي: <b>${totalPrice}</b> درهم`;
+        }
+    </script>
+</body>
+</html>
