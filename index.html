@@ -4,30 +4,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>حساب الرولات</title>
+  <title>حساب الرولات والتكلفة</title>
   <style>
-    body { font-family: sans-serif; background: #f9f9f9; padding: 20px; max-width: 600px; margin: auto; direction: rtl; }
+    body { font-family: sans-serif; background: #f9f9f9; padding: 20px; max-width: 640px; margin: auto; direction: rtl; }
     h1 { font-size: 24px; margin-bottom: 20px; }
-    label { display: block; margin-top: 10px; }
+    label { display: block; margin-top: 10px; font-weight: 600; }
     input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
     .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .result p { margin: 8px 0; }
+    .muted { color:#0a7; font-size:12px; margin-inline-start:10px; }
+    .warn { display:none; background:#fff3cd; color:#8a6d3b; border:1px solid #ffeeba; padding:12px; border-radius:8px; margin-bottom:12px; }
+    button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #111; color: #fff; font-weight: 700; }
   </style>
 </head>
 <body>
-  <h1>حساب عدد الرولات والأمتار المطلوبة</h1>
+  <h1>حساب الرولات والأمتار المطلوبة + التكلفة</h1>
   <div class="card">
-    <label>طول التصميم (سم):
-      <input type="number" id="height" />
-    </label>
-    <label>عرض التصميم (سم):
-      <input type="number" id="width" />
-    </label>
-    <label>عدد النسخ المطلوبة:
-      <input type="number" id="quantity" />
-    </label>
-    <button onclick="calculate()" style="margin-top: 15px;">احسب</button>
+    <div class="row">
+      <div>
+        <label>طول التصميم (سم)</label>
+        <input type="number" id="height" step="0.01" placeholder="مثال: 27.5" />
+      </div>
+      <div>
+        <label>عرض التصميم (سم)</label>
+        <input type="number" id="width" step="0.01" placeholder="مثال: 50" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>عدد النسخ المطلوبة</label>
+        <input type="number" id="quantity" step="1" placeholder="مثال: 1000" />
+      </div>
+      <div>
+        <label>طول الرول (متر)</label>
+        <input type="number" id="rollLength" step="0.01" value="25" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>عرض الرول (سم)</label>
+        <input type="number" id="rollWidth" step="0.01" value="50" />
+      </div>
+      <div>
+        <label>سعر المتر (عملة)</label>
+        <input type="number" id="pricePerMeter" step="0.0001" value="2.20" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>رمز/اسم العملة (اختياري)</label>
+        <input type="text" id="currency" placeholder="USD / AED / $" />
+      </div>
+    </div>
+    <button id="calcBtn">احسب</button>
+    <span class="muted">القيم تُحفظ تلقائيًا</span>
   </div>
+
+  <div id="warn" class="warn">⚠️ عرض التصميم أكبر من عرض الرول — عدّل القيم رجاءً.</div>
 
   <div class="card result" id="results" style="display:none;">
     <p><strong>عدد التصاميم عرضيًا:</strong> <span id="rowCount"></span></p>
@@ -35,31 +70,64 @@
     <p><strong>عدد التصاميم في الرول الواحد:</strong> <span id="totalPerRoll"></span></p>
     <p><strong>عدد الرولات المطلوبة:</strong> <span id="rolls"></span></p>
     <p><strong>عدد الأمتار المطلوبة:</strong> <span id="meters"></span> متر</p>
+    <hr />
+    <p><strong>التكلفة الإجمالية:</strong> <span id="totalCost"></span></p>
+    <p><strong>تكلفة الحبة الواحدة:</strong> <span id="unitCost"></span></p>
   </div>
 
   <script>
+    // حفظ تلقائي
+    const ids = ["height","width","quantity","rollLength","rollWidth","pricePerMeter","currency"];
+    ids.forEach(id => {
+      const v = localStorage.getItem("rc_"+id);
+      if (v !== null) document.getElementById(id).value = v;
+    });
+    ids.forEach(id => {
+      document.getElementById(id).addEventListener("input", e => {
+        localStorage.setItem("rc_"+id, e.target.value);
+      });
+    });
+
+    function formatMoney(value, currency) {
+      const v = Number.isFinite(value) ? value.toFixed(4).replace(/\.?(0+)$/, (m, z) => z && z.length >= 3 ? "" : m) : "-";
+      return currency ? (v + " " + currency) : v;
+    }
+
     function calculate() {
       const height = parseFloat(document.getElementById('height').value);
       const width = parseFloat(document.getElementById('width').value);
       const quantity = parseFloat(document.getElementById('quantity').value);
-      const rollLength = 25; // meters
-      const rollWidth = 50; // cm
+      const rollLength = parseFloat(document.getElementById('rollLength').value); // m
+      const rollWidth = parseFloat(document.getElementById('rollWidth').value);   // cm
+      const pricePerMeter = parseFloat(document.getElementById('pricePerMeter').value);
+      const currency = document.getElementById('currency').value.trim();
 
-      if (!height || !width || !quantity) return;
+      if (!height || !width || !quantity || !rollLength || !rollWidth || !pricePerMeter) return;
+
+      const warn = document.getElementById('warn');
+      warn.style.display = (width > rollWidth) ? 'block' : 'none';
+      if (width > rollWidth) { document.getElementById('results').style.display = 'none'; return; }
 
       const designsPerRow = Math.floor(rollWidth / width);
       const designsPerColumn = Math.floor((rollLength * 100) / height);
       const designsPerRoll = designsPerRow * designsPerColumn;
+
       const requiredRolls = designsPerRoll > 0 ? Math.ceil(quantity / designsPerRoll) : 0;
-      const requiredMeters = designsPerRow > 0 ? (quantity / designsPerRow) * (height / 100) : 0;
+      const metersRequired = designsPerRow > 0 ? (quantity / designsPerRow) * (height / 100) : 0;
+      const totalCost = metersRequired * pricePerMeter;
+      const unitCost = quantity > 0 ? (totalCost / quantity) : 0;
 
       document.getElementById('rowCount').textContent = designsPerRow;
       document.getElementById('colCount').textContent = designsPerColumn;
       document.getElementById('totalPerRoll').textContent = designsPerRoll;
       document.getElementById('rolls').textContent = requiredRolls;
-      document.getElementById('meters').textContent = requiredMeters.toFixed(2);
+      document.getElementById('meters').textContent = metersRequired.toFixed(3);
+      document.getElementById('totalCost').textContent = formatMoney(totalCost, currency);
+      document.getElementById('unitCost').textContent = formatMoney(unitCost, currency);
       document.getElementById('results').style.display = 'block';
     }
+
+    document.getElementById('calcBtn').addEventListener('click', calculate);
   </script>
 </body>
 </html>
