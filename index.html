@@ -1,133 +1,150 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>حساب الرولات والتكلفة</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة الرولات + تحويل عملة</title>
   <style>
-    body { font-family: sans-serif; background: #f9f9f9; padding: 20px; max-width: 640px; margin: auto; direction: rtl; }
-    h1 { font-size: 24px; margin-bottom: 20px; }
-    label { display: block; margin-top: 10px; font-weight: 600; }
-    input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .result p { margin: 8px 0; }
-    .muted { color:#0a7; font-size:12px; margin-inline-start:10px; }
-    .warn { display:none; background:#fff3cd; color:#8a6d3b; border:1px solid #ffeeba; padding:12px; border-radius:8px; margin-bottom:12px; }
-    button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #111; color: #fff; font-weight: 700; }
+    body{font-family:Arial,Helvetica,sans-serif;background:#f7f7f7;margin:0;padding:20px}
+    .app{max-width:700px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:22px}
+    h1{font-size:22px;margin:0 0 14px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:640px){.row{grid-template-columns:1fr}}
+    label{font-weight:700;font-size:13px;margin:4px 0;display:block}
+    input,select{width:100%;padding:10px 12px;border:1px solid #e2e2e2;border-radius:8px;box-sizing:border-box}
+    .muted{color:#888;font-size:12px}
+    .btn{margin-top:12px;background:#111;color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer}
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    .card{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px}
+    .num{font-size:20px;font-weight:800}
+    .warn{display:none;color:#b30000;background:#ffe5e5;border:1px solid #ffb8b8;padding:10px;border-radius:8px;margin-top:10px}
   </style>
 </head>
 <body>
-  <h1>حساب الرولات والأمتار المطلوبة + التكلفة</h1>
-  <div class="card">
+  <div class="app">
+    <h1>📏 حاسبة الرولات + تحويل عملة</h1>
     <div class="row">
       <div>
         <label>طول التصميم (سم)</label>
-        <input type="number" id="height" step="0.01" placeholder="مثال: 27.5" />
+        <input id="designH" type="number" step="0.01" placeholder="مثال: 27.5">
       </div>
       <div>
         <label>عرض التصميم (سم)</label>
-        <input type="number" id="width" step="0.01" placeholder="مثال: 50" />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>عدد النسخ المطلوبة</label>
-        <input type="number" id="quantity" step="1" placeholder="مثال: 1000" />
+        <input id="designW" type="number" step="0.01" placeholder="مثال: 50">
       </div>
       <div>
         <label>طول الرول (متر)</label>
-        <input type="number" id="rollLength" step="0.01" value="25" />
+        <input id="rollLen" type="number" step="0.01" value="25">
       </div>
-    </div>
-    <div class="row">
       <div>
         <label>عرض الرول (سم)</label>
-        <input type="number" id="rollWidth" step="0.01" value="50" />
+        <input id="rollW" type="number" step="0.01" value="50">
       </div>
       <div>
-        <label>سعر المتر (عملة)</label>
-        <input type="number" id="pricePerMeter" step="0.0001" value="2.20" />
+        <label>عدد النسخ المطلوبة</label>
+        <input id="qty" type="number" step="1" value="1">
       </div>
-    </div>
-    <div class="row">
       <div>
-        <label>رمز/اسم العملة (اختياري)</label>
-        <input type="text" id="currency" placeholder="USD / AED / $" />
+        <label>سعر المتر (بالعملة الأساسية)</label>
+        <input id="pricePerM" type="number" step="0.01" value="0">
+        <div class="muted">أدخل السعر لكل متر <b>بالعملة الأساسية</b> (مثلاً USD).</div>
+      </div>
+
+      <div>
+        <label>العملة المطلوبة</label>
+        <select id="currency">
+          <option value="USD" data-rate="1" data-symbol="USD">USD (دولار)</option>
+          <option value="AED" data-rate="3.67" data-symbol="AED">AED (درهم)</option>
+          <option value="EUR" data-rate="0.93" data-symbol="EUR">EUR (يورو)</option>
+          <option value="SAR" data-rate="3.75" data-symbol="SAR">SAR (ريال)</option>
+          <option value="TRY" data-rate="34.0" data-symbol="TRY">TRY (ليرة)</option>
+          <option value="CUSTOM" data-rate="1" data-symbol="">معدل مخصص…</option>
+        </select>
+        <div class="muted">ملاحظة: الأسعار تقريبية. غيّر المعدل يدويًا إذا لزم.</div>
+      </div>
+      <div id="customRateWrap" style="display:none;">
+        <label>معدل التحويل (من العملة الأساسية → العملة المختارة)</label>
+        <input id="customRate" type="number" step="0.0001" value="1">
+        <div class="muted">مثال: إذا العملة الأساسية USD وتريد AED اكتب 3.67</div>
       </div>
     </div>
-    <button id="calcBtn">احسب</button>
-    <span class="muted">القيم تُحفظ تلقائيًا</span>
+
+    <button class="btn" onclick="calc()">احسب</button>
+    <div id="warn" class="warn">⚠️ أدخل قيم صحيحة من فضلك.</div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="muted">عدد الرولات</div>
+        <div id="rolls" class="num">-</div>
+      </div>
+      <div class="card">
+        <div class="muted">عدد الأمتار المطلوبة</div>
+        <div id="meters" class="num">-</div>
+      </div>
+      <div class="card">
+        <div class="muted">التكلفة الإجمالية</div>
+        <div id="total" class="num">-</div>
+      </div>
+      <div class="card">
+        <div class="muted">التكلفة للوحدة (تصميم واحد)</div>
+        <div id="unit" class="num">-</div>
+      </div>
+    </div>
   </div>
 
-  <div id="warn" class="warn">⚠️ عرض التصميم أكبر من عرض الرول — عدّل القيم رجاءً.</div>
+<script>
+  const currency = document.getElementById('currency');
+  const customWrap = document.getElementById('customRateWrap');
+  const customRate = document.getElementById('customRate');
 
-  <div class="card result" id="results" style="display:none;">
-    <p><strong>عدد التصاميم عرضيًا:</strong> <span id="rowCount"></span></p>
-    <p><strong>عدد التصاميم طوليًا:</strong> <span id="colCount"></span></p>
-    <p><strong>عدد التصاميم في الرول الواحد:</strong> <span id="totalPerRoll"></span></p>
-    <p><strong>عدد الرولات المطلوبة:</strong> <span id="rolls"></span></p>
-    <p><strong>عدد الأمتار المطلوبة:</strong> <span id="meters"></span> متر</p>
-    <hr />
-    <p><strong>التكلفة الإجمالية:</strong> <span id="totalCost"></span></p>
-    <p><strong>تكلفة الحبة الواحدة:</strong> <span id="unitCost"></span></p>
-  </div>
+  currency.addEventListener('change', () => {
+    customWrap.style.display = currency.value === 'CUSTOM' ? 'block' : 'none';
+  });
 
-  <script>
-    // حفظ تلقائي
-    const ids = ["height","width","quantity","rollLength","rollWidth","pricePerMeter","currency"];
-    ids.forEach(id => {
-      const v = localStorage.getItem("rc_"+id);
-      if (v !== null) document.getElementById(id).value = v;
-    });
-    ids.forEach(id => {
-      document.getElementById(id).addEventListener("input", e => {
-        localStorage.setItem("rc_"+id, e.target.value);
-      });
-    });
+  function fmt(n, sym){ 
+    return (isFinite(n)? n.toFixed(2) : '-') + (sym? (' ' + sym) : '');
+  }
 
-    function formatMoney(value, currency) {
-      const v = Number.isFinite(value) ? value.toFixed(4).replace(/\.?(0+)$/, (m, z) => z && z.length >= 3 ? "" : m) : "-";
-      return currency ? (v + " " + currency) : v;
+  function calc(){
+    const h = parseFloat(document.getElementById('designH').value)/100;   // m
+    const w = parseFloat(document.getElementById('designW').value)/100;   // m
+    const rL = parseFloat(document.getElementById('rollLen').value);      // m
+    const rW = parseFloat(document.getElementById('rollW').value)/100;    // m
+    const qty = parseInt(document.getElementById('qty').value||'1',10);
+    const priceBase = parseFloat(document.getElementById('pricePerM').value); // per meter in base currency
+
+    if([h,w,rL,rW,priceBase].some(x=>!isFinite(x)||x<=0) || !isFinite(qty) || qty<=0){
+      document.getElementById('warn').style.display='block';
+      return;
+    } else {
+      document.getElementById('warn').style.display='none';
     }
 
-    function calculate() {
-      const height = parseFloat(document.getElementById('height').value);
-      const width = parseFloat(document.getElementById('width').value);
-      const quantity = parseFloat(document.getElementById('quantity').value);
-      const rollLength = parseFloat(document.getElementById('rollLength').value); // m
-      const rollWidth = parseFloat(document.getElementById('rollWidth').value);   // cm
-      const pricePerMeter = parseFloat(document.getElementById('pricePerMeter').value);
-      const currency = document.getElementById('currency').value.trim();
-
-      if (!height || !width || !quantity || !rollLength || !rollWidth || !pricePerMeter) return;
-
-      const warn = document.getElementById('warn');
-      warn.style.display = (width > rollWidth) ? 'block' : 'none';
-      if (width > rollWidth) { document.getElementById('results').style.display = 'none'; return; }
-
-      const designsPerRow = Math.floor(rollWidth / width);
-      const designsPerColumn = Math.floor((rollLength * 100) / height);
-      const designsPerRoll = designsPerRow * designsPerColumn;
-
-      const requiredRolls = designsPerRoll > 0 ? Math.ceil(quantity / designsPerRoll) : 0;
-      const metersRequired = designsPerRow > 0 ? (quantity / designsPerRow) * (height / 100) : 0;
-      const totalCost = metersRequired * pricePerMeter;
-      const unitCost = quantity > 0 ? (totalCost / quantity) : 0;
-
-      document.getElementById('rowCount').textContent = designsPerRow;
-      document.getElementById('colCount').textContent = designsPerColumn;
-      document.getElementById('totalPerRoll').textContent = designsPerRoll;
-      document.getElementById('rolls').textContent = requiredRolls;
-      document.getElementById('meters').textContent = metersRequired.toFixed(3);
-      document.getElementById('totalCost').textContent = formatMoney(totalCost, currency);
-      document.getElementById('unitCost').textContent = formatMoney(unitCost, currency);
-      document.getElementById('results').style.display = 'block';
+    // conversion
+    const opt = currency.options[currency.selectedIndex];
+    const sym = opt.dataset.symbol || '';
+    let rate = parseFloat(opt.dataset.rate || '1');
+    if(currency.value==='CUSTOM'){
+      const cr = parseFloat(customRate.value);
+      if(isFinite(cr) && cr>0) rate = cr;
     }
 
-    document.getElementById('calcBtn').addEventListener('click', calculate);
-  </script>
+    // areas
+    const designArea = h*w;         // m2 per unit
+    const rollArea = rL*rW;         // m2 per roll
+    const totalArea = designArea*qty;
+    const rollsNeeded = Math.ceil(totalArea/rollArea);
+    const metersNeeded = rollsNeeded*rL;
+
+    // cost in target currency
+    const totalCost = metersNeeded * priceBase * rate;
+    const unitCost = totalCost / qty;
+
+    document.getElementById('rolls').textContent = rollsNeeded;
+    document.getElementById('meters').textContent = metersNeeded.toFixed(2);
+    document.getElementById('total').textContent = fmt(totalCost, sym);
+    document.getElementById('unit').textContent  = fmt(unitCost, sym);
+  }
+</script>
 </body>
 </html>
