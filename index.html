@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حاسبة الرولات (تفاصيل + تحويل عملة)</title>
+  <title>حاسبة الرولات (AED & USD)</title>
   <style>
     body{font-family:Arial,Helvetica,sans-serif;background:#f7f7f7;margin:0;padding:20px}
-    .app{max-width:860px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:22px}
+    .app{max-width:900px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:22px}
     h1{font-size:22px;margin:0 0 14px}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:720px){.row{grid-template-columns:1fr}}
@@ -15,8 +15,8 @@
     .muted{color:#888;font-size:12px}
     .btn{margin-top:12px;background:#111;color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer}
     .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px}
-    @media(max-width:920px){.grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:620px){.grid{grid-template-columns:1fr}}
+    @media(max-width:960px){.grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
     .card{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:14px}
     .num{font-size:20px;font-weight:800}
     .warn{display:none;color:#b30000;background:#ffe5e5;border:1px solid #ffb8b8;padding:10px;border-radius:8px;margin-top:10px}
@@ -24,7 +24,7 @@
 </head>
 <body>
   <div class="app">
-    <h1>📏 حاسبة الرولات (تفاصيل + تحويل عملة)</h1>
+    <h1>📏 حاسبة الرولات (تجميعة النتائج بالدرهم والدولار)</h1>
 
     <div class="row">
       <div>
@@ -50,7 +50,7 @@
       <div>
         <label>سعر المتر (بالعملة التي أدخلتها)</label>
         <input id="pricePerM" type="number" step="0.01" value="0">
-        <div class="muted">أدخل السعر لكل متر، ثم اختر العملة أدناه المطابقة للسعر المدخل.</div>
+        <div class="muted">أدخل السعر لكل متر، ثم اختر العملة المطابقة للسعر المدخل.</div>
       </div>
 
       <div>
@@ -63,12 +63,12 @@
           <option value="TRY" data-rate="34.0" data-symbol="TRY">TRY (ليرة)</option>
           <option value="CUSTOM" data-rate="1" data-symbol="">معدل مخصص…</option>
         </select>
-        <div class="muted">المعدل هو: <b>USD → العملة المختارة</b>. عدّل يدويًا إذا لزم.</div>
+        <div class="muted">المعدل هنا بصيغة <b>USD → العملة المختارة</b>.</div>
       </div>
       <div id="customRateWrap" style="display:none;">
         <label>معدل التحويل (من USD → العملة المختارة)</label>
         <input id="customRate" type="number" step="0.0001" value="1">
-        <div class="muted">مثال: إذا أردت AED اكتب 3.67</div>
+        <div class="muted">مثال: AED = 3.67</div>
       </div>
     </div>
 
@@ -76,38 +76,16 @@
     <div id="warn" class="warn">⚠️ أدخل قيم صحيحة من فضلك.</div>
 
     <div class="grid">
-      <div class="card">
-        <div class="muted">عدد التصاميم عرضيًا</div>
-        <div id="across" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">عدد التصاميم طوليًا (في الرول الواحد)</div>
-        <div id="down" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">عدد التصاميم في الرول الواحد</div>
-        <div id="perRoll" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">عدد الرولات المطلوبة</div>
-        <div id="rolls" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">عدد الأمتار المطلوبة</div>
-        <div id="meters" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">التكلفة الإجمالية (بالعملة المختارة)</div>
-        <div id="total" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">التكلفة الإجمالية (بالدولار USD)</div>
-        <div id="totalUSD" class="num">-</div>
-      </div>
-      <div class="card">
-        <div class="muted">التكلفة للوحدة (بالعملة المختارة)</div>
-        <div id="unit" class="num">-</div>
-      </div>
+      <div class="card"><div class="muted">عدد التصاميم عرضيًا</div><div id="across" class="num">-</div></div>
+      <div class="card"><div class="muted">عدد التصاميم طوليًا (في الرول الواحد)</div><div id="down" class="num">-</div></div>
+      <div class="card"><div class="muted">عدد التصاميم في الرول الواحد</div><div id="perRoll" class="num">-</div></div>
+      <div class="card"><div class="muted">عدد الرولات المطلوبة</div><div id="rolls" class="num">-</div></div>
+      <div class="card"><div class="muted">عدد الأمتار المطلوبة</div><div id="meters" class="num">-</div></div>
+
+      <div class="card"><div class="muted">التكلفة الإجمالية (AED)</div><div id="totalAED" class="num">-</div></div>
+      <div class="card"><div class="muted">التكلفة الإجمالية (USD)</div><div id="totalUSD" class="num">-</div></div>
+      <div class="card"><div class="muted">التكلفة للوحدة (AED)</div><div id="unitAED" class="num">-</div></div>
+      <div class="card"><div class="muted">التكلفة للوحدة (USD)</div><div id="unitUSD" class="num">-</div></div>
     </div>
   </div>
 
@@ -141,13 +119,13 @@
     const h_m = h_cm / 100;
     const w_m = w_cm / 100;
 
-    // التعبئة داخل الرول
     const across = Math.floor(rollW_cm / w_cm);
     const downPerRoll = Math.floor(rollLen_m / h_m);
     const perRoll = across * downPerRoll;
 
     if(across <= 0 || downPerRoll <= 0){
-      ['across','down','perRoll','rolls','meters','total','unit','totalUSD'].forEach(id => document.getElementById(id).textContent = '-');
+      ['across','down','perRoll','rolls','meters','totalAED','totalUSD','unitAED','unitUSD']
+        .forEach(id => document.getElementById(id).textContent = '-');
       return;
     }
 
@@ -155,21 +133,26 @@
     const metersUsed = rowsNeeded * h_m;
     const rollsNeeded = Math.ceil(metersUsed / rollLen_m);
 
-    // العملة: القيمة المدخلة هي بسعر المتر في العملة المختارة
+    // تحويلات
+    const USD_TO_AED = 3.67; // ثابت
     const opt = currency.options[currency.selectedIndex];
-    const sym = opt.dataset.symbol || '';
-    let rate = parseFloat(opt.dataset.rate || '1'); // USD -> selected
+    let usdToSelected = parseFloat(opt.dataset.rate || '1'); // USD -> selected
     if(currency.value === 'CUSTOM'){
       const cr = parseFloat(customRate.value);
-      if(isFinite(cr) && cr>0) rate = cr;
+      if(isFinite(cr) && cr>0) usdToSelected = cr;
     }
 
-    // التكلفة بالعملة المختارة مباشرة
+    // 1) التكلفة بالعملة المدخلة مباشرة
     const totalSelected = metersUsed * priceEntered;
-    const unitSelected = totalSelected / qty;
 
-    // التحويل للدولار: إذا كان rate = USD -> selected ، إذًا USD = selected / rate
-    const totalUSD = totalSelected / rate;
+    // 2) حوّل من العملة المدخلة إلى USD
+    // إذا usdToSelected = USD→Selected ، إذًا Selected→USD = 1 / usdToSelected
+    const totalUSD = totalSelected / usdToSelected;
+    const unitUSD  = totalUSD / qty;
+
+    // 3) حوّل USD إلى AED
+    const totalAED = totalUSD * USD_TO_AED;
+    const unitAED  = totalAED / qty;
 
     // عرض النتائج
     document.getElementById('across').textContent = across;
@@ -177,9 +160,11 @@
     document.getElementById('perRoll').textContent = perRoll;
     document.getElementById('rolls').textContent = rollsNeeded;
     document.getElementById('meters').textContent = metersUsed.toFixed(2) + ' م';
-    document.getElementById('total').textContent = fmt(totalSelected, sym);
-    document.getElementById('unit').textContent  = fmt(unitSelected, sym);
+
+    document.getElementById('totalAED').textContent = fmt(totalAED, 'AED');
     document.getElementById('totalUSD').textContent = fmt(totalUSD, 'USD');
+    document.getElementById('unitAED').textContent  = fmt(unitAED, 'AED');
+    document.getElementById('unitUSD').textContent  = fmt(unitUSD, 'USD');
   }
 </script>
 </body>
