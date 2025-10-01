@@ -1,93 +1,137 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة الرولات</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>حاسبة الرولات — طريقة تكلفة القطعة (الأدق)</title>
 
-    <!-- ايقونات التطبيق والايفون والاندرويد -->
-    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            direction: rtl;
-            text-align: center;
-            margin: 30px;
-        }
-        input {
-            margin: 5px;
-            padding: 8px;
-            width: 200px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    </style>
+  <style>
+    body{font-family:Arial,sans-serif;direction:rtl;text-align:center;margin:30px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;max-width:900px;margin:0 auto}
+    label{font-size:14px}
+    input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px}
+    button{padding:12px 22px;margin-top:14px;background:#28a745;color:#fff;border:0;border-radius:10px;cursor:pointer}
+    button:hover{background:#218838}
+    .card{max-width:900px;margin:24px auto;border:1px solid #eee;border-radius:12px;padding:16px;text-align:start}
+    h2{margin-bottom:6px}
+    .big{font-size:20px;font-weight:bold}
+    .muted{color:#666;font-size:13px}
+  </style>
 </head>
 <body>
-    <h2>📏 حاسبة الرولات</h2>
+  <h2>📏 حاسبة الرولات (طريقة تكلفة القطعة — الأدق للإنتاج)</h2>
+  <div class="muted">نحسب تكلفة الحبة اعتمادًا على عدد الحبات في السطر، ثم نضربها بعدد القطع المطلوبة.</div>
 
-    <label>طول التصميم (سم):</label><br>
-    <input type="number" id="designLength" placeholder="ادخل الطول"><br>
+  <div class="grid">
+    <div>
+      <label>طول التصميم (سم)</label>
+      <input type="number" id="designLength" step="0.01" value="11.7">
+    </div>
+    <div>
+      <label>عرض التصميم (سم)</label>
+      <input type="number" id="designWidth" step="0.01" value="4.5">
+    </div>
+    <div>
+      <label>طول الرول (م)</label>
+      <input type="number" id="rollLength" step="0.01" value="25">
+    </div>
+    <div>
+      <label>عرض الرول (سم)</label>
+      <input type="number" id="rollWidth" step="0.01" value="50">
+    </div>
+    <div>
+      <label>عدد القطع المطلوبة</label>
+      <input type="number" id="piecesRequired" step="1" value="1300">
+    </div>
+    <div>
+      <label>سعر المتر</label>
+      <input type="number" id="pricePerMeter" step="0.01" value="2.20">
+    </div>
+    <div>
+      <label>العملة لسعر المتر</label>
+      <select id="priceCurrency">
+        <option value="USD" selected>USD (دولار)</option>
+        <option value="AED">AED (درهم)</option>
+      </select>
+    </div>
+  </div>
 
-    <label>عرض التصميم (سم):</label><br>
-    <input type="number" id="designWidth" placeholder="ادخل العرض"><br>
+  <button onclick="calculate()">احسب</button>
 
-    <label>طول الرول (م):</label><br>
-    <input type="number" id="rollLength" value="25"><br>
+  <div class="card">
+    <div class="big" id="totalLine">—</div>
+    <div class="muted" id="pieceLine">—</div>
+    <hr>
+    <div class="muted" id="details">—</div>
+  </div>
 
-    <label>عرض الرول (سم):</label><br>
-    <input type="number" id="rollWidth" value="50"><br>
+  <script>
+    const AED_PER_USD = 3.67;
 
-    <label>سعر المتر (درهم):</label><br>
-    <input type="number" id="pricePerMeter" value="0"><br>
+    function to2(x){ return Number.isFinite(x) ? x.toFixed(2) : "—"; }
 
-    <button onclick="calculate()">احسب</button>
+    function calculate(){
+      // مدخلات
+      const Lcm = parseFloat(document.getElementById('designLength').value);   // طول التصميم سم
+      const Wcm = parseFloat(document.getElementById('designWidth').value);    // عرض التصميم سم
+      const rollLenM = parseFloat(document.getElementById('rollLength').value);// طول الرول م
+      const rollWcm  = parseFloat(document.getElementById('rollWidth').value);// عرض الرول سم
+      const pieces   = parseInt(document.getElementById('piecesRequired').value,10);
+      const price    = parseFloat(document.getElementById('pricePerMeter').value);
+      const cur      = document.getElementById('priceCurrency').value;
 
-    <div class="result" id="result"></div>
+      // تحقق أساسي
+      if([Lcm,Wcm,rollLenM,rollWcm,price].some(isNaN) || !Number.isInteger(pieces) || pieces<=0){
+        alert("⚠️ الرجاء إدخال القيم بشكل صحيح.");
+        return;
+      }
 
-    <script>
-        function calculate() {
-            let designLength = parseFloat(document.getElementById('designLength').value) / 100;
-            let designWidth = parseFloat(document.getElementById('designWidth').value) / 100;
-            let rollLength = parseFloat(document.getElementById('rollLength').value);
-            let rollWidth = parseFloat(document.getElementById('rollWidth').value) / 100;
-            let pricePerMeter = parseFloat(document.getElementById('pricePerMeter').value);
+      // تحويلات
+      const Lm = Lcm/100;  // طول التصميم بالمتر
+      // const Wm = Wcm/100; // عرض التصميم بالمتر (غير مطلوب مباشر بالحساب)
 
-            if (isNaN(designLength) || isNaN(designWidth)) {
-                document.getElementById('result').innerHTML = "⚠️ الرجاء إدخال القيم بشكل صحيح";
-                return;
-            }
+      // سعر المتر بالدولار
+      const priceUSD = (cur === "USD") ? price : (price / AED_PER_USD);
 
-            let designArea = designLength * designWidth;
-            let rollArea = rollLength * rollWidth;
-            let rollsNeeded = Math.ceil(designArea / rollArea);
-            let metersNeeded = rollsNeeded * rollLength;
-            let totalPrice = metersNeeded * pricePerMeter;
+      // عدد الحبات في السطر = أرضية(عرض الرول ÷ عرض التصميم)
+      const perRow = Math.floor(rollWcm / Wcm);
+      if(perRow <= 0){
+        alert("عرض التصميم أكبر من عرض الرول — لا يمكن ترتيب أي حبة في السطر.");
+        return;
+      }
 
-            document.getElementById('result').innerHTML =
-                `✅ تحتاج إلى <b>${rollsNeeded}</b> رول<br>` +
-                `📏 مجموع الأمتار: <b>${metersNeeded}</b> متر<br>` +
-                `💰 السعر الكلي: <b>${totalPrice}</b> درهم`;
-        }
-    </script>
+      // طريقة تكلفة القطعة:
+      // تكلفة السطر (بالدولار) = طول التصميم (م) × سعر المتر (USD)
+      const rowCostUSD = Lm * priceUSD;
+
+      // تكلفة الحبة = تكلفة السطر ÷ عدد الحبات في السطر
+      const pieceCostUSD = rowCostUSD / perRow;
+
+      // الإجمالي
+      const totalUSD = pieceCostUSD * pieces;
+      const totalAED = totalUSD * AED_PER_USD;
+
+      // تقدير لوجستي: الأمتار و الرولات
+      const rowsNeeded = Math.ceil(pieces / perRow);   // كم سطر نحتاج
+      const metersNeeded = rowsNeeded * Lm;            // أمتار مطلوبة
+      const rollsNeeded  = Math.ceil(metersNeeded / rollLenM);
+
+      // إخراج
+      document.getElementById('totalLine').innerHTML =
+        `الإجمالي: USD ${to2(totalUSD)} — AED ${to2(totalAED)}`;
+
+      document.getElementById('pieceLine').innerHTML =
+        `تكلفة القطعة: USD ${to2(pieceCostUSD)} — AED ${to2(pieceCostUSD * AED_PER_USD)}`;
+
+      document.getElementById('details').innerHTML =
+        `عدد الحبات في السطر: <b>${perRow}</b> · عدد الأسطر: <b>${rowsNeeded}</b> · الأمتار المطلوبة: <b>${to2(metersNeeded)}</b> م · الرولات التقديرية: <b>${rollsNeeded}</b><br>
+         مدخلات: طول/عرض التصميم = ${Lcm}×${Wcm} سم، عرض الرول = ${rollWcm} سم، طول الرول = ${rollLenM} م · سعر المتر: ${cur} ${price}`;
+    }
+  </script>
 </body>
 </html>
