@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة الرولات — مطابقة للجدول</title>
+  <style>
+    body{margin:0;background:#0b1220;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Noto Sans Arabic',Tahoma,Arial,sans-serif;color:#e5e7eb}
+    .wrap{max-width:960px;margin:32px auto;padding:16px}
+    h1{font-size:1.4rem;margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .field{background:#0f172a;border:1px solid #1f2937;border-radius:12px;padding:12px}
+    .field label{display:block;color:#9ca3af;font-size:.9rem;margin-bottom:6px}
+    .field input,.field select{width:100%;background:#0b1325;color:#e5e7eb;border:1px solid #1f2937;border-radius:10px;padding:10px;font-size:1rem}
+    .btn{display:inline-block;background:#2563eb;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:700;cursor:pointer}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    .card{background:#0f172a;border:1px solid #1f2937;border-radius:14px;padding:14px}
+    .card .k{color:#9ca3af;font-size:.9rem}
+    .card .v{font-weight:800;font-size:1.1rem;margin-top:6px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+    @media (max-width:520px){.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>حاسبة الرولات (مطابقة للجدول)</h1>
+    <div class="grid">
+      <div class="field"><label>طول التصميم (سم)</label><input id="designHeightCm" type="number" value="11.7" step="0.01"></div>
+      <div class="field"><label>عرض التصميم (سم)</label><input id="designWidthCm" type="number" value="4.6" step="0.01"></div>
+      <div class="field"><label>طول الرول (متر)</label><input id="rollLengthM" type="number" value="25" step="0.01"></div>
+      <div class="field"><label>عرض الرول (سم)</label><input id="rollWidthCm" type="number" value="50" step="0.01"></div>
+      <div class="field"><label>سعر المتر</label><input id="pricePerMeter" type="number" value="2.20" step="0.01"></div>
+      <div class="field"><label>عدد التصاميم المطلوبة</label><input id="quantity" type="number" value="1300"></div>
+      <div class="field"><label>العملة المدخلة</label>
+        <select id="inputCurrency"><option value="USD" selected>USD</option><option value="AED">AED</option></select>
+      </div>
+    </div>
+    <div style="margin-top:16px"><button class="btn" onclick="calculate()">احسب</button></div>
+
+    <div class="cards">
+      <div class="card"><div class="k">عدد التصاميم عرضياً</div><div id="perRow" class="v">—</div></div>
+      <div class="card"><div class="k">عدد التصاميم طولياً</div><div id="perCol" class="v">—</div></div>
+      <div class="card"><div class="k">عدد التصاميم في الرول</div><div id="perRoll" class="v">—</div></div>
+      <div class="card"><div class="k">عدد الأمتار المطلوبة</div><div id="metersNeeded" class="v">—</div></div>
+      <div class="card"><div class="k">تكلفة السطر (USD)</div><div id="rowCostUSD" class="v">—</div></div>
+      <div class="card"><div class="k">التكلفة للوحدة (USD)</div><div id="unitUSD" class="v">—</div></div>
+      <div class="card"><div class="k">التكلفة للوحدة (AED)</div><div id="unitAED" class="v">—</div></div>
+      <div class="card"><div class="k">الإجمالي (USD)</div><div id="totalUSD" class="v">—</div></div>
+      <div class="card"><div class="k">الإجمالي (AED)</div><div id="totalAED" class="v">—</div></div>
+    </div>
+  </div>
+
+  <script>
+    function getVal(id){return document.getElementById(id).value;}
+    function setText(id,v){document.getElementById(id).textContent=v;}
+    function fmt(n){return (isFinite(n)? n:0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+    function calculate(){
+      const designW = +getVal("designWidthCm"), designH = +getVal("designHeightCm");
+      const rollW = +getVal("rollWidthCm"), rollL = +getVal("rollLengthM");
+      const priceIn = +getVal("pricePerMeter"), qty = Math.max(0, Math.floor(+getVal("quantity")));
+      const cur = getVal("inputCurrency");
+      const rateUnits = 3.67; // ثابت للحبة
+      const rateTotal = 4.10; // ثابت للإجمالي
+
+      let usdPerM, aedPerM;
+      if(cur==="USD"){usdPerM=priceIn; aedPerM=usdPerM*rateUnits;} else {aedPerM=priceIn; usdPerM=aedPerM/rateUnits;}
+
+      const perRow=Math.floor(rollW/designW);
+      const perCol=Math.floor((rollL*100)/designH);
+      const perRoll=perRow*perCol;
+      const rowsNeeded=Math.ceil(qty/Math.max(1,perRow));
+      const metersNeeded=(rowsNeeded*designH)/100;
+
+      const rowCostUSD=(designH/100)*usdPerM;
+      const unitUSD_exact=rowCostUSD/Math.max(1,perRow);
+
+      // مطابقة الجدول مباشرة
+      const unitUSD_disp = Math.round(unitUSD_exact*100)/100;
+      const unitAED_disp = Math.round(unitUSD_disp*rateUnits*100)/100;
+      const totalUSD = Math.round((unitUSD_exact*qty)*100)/100;
+      const totalAED = Math.round((totalUSD*rateTotal)*100)/100;
+
+      setText("perRow",perRow); setText("perCol",perCol); setText("perRoll",perRoll);
+      setText("metersNeeded",fmt(metersNeeded)+" م");
+      setText("rowCostUSD","$"+fmt(rowCostUSD));
+      setText("unitUSD","$"+fmt(unitUSD_disp));
+      setText("unitAED","AED "+fmt(unitAED_disp));
+      setText("totalUSD","$"+fmt(totalUSD));
+      setText("totalAED","AED "+fmt(totalAED));
+    }
+    window.addEventListener("DOMContentLoaded",calculate);
+  </script>
+</body>
+</html>
